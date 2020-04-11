@@ -1,0 +1,27 @@
+cms-reactive-mongo
+----------------------------------------------------
+docker pull mongo 
+docker network create cms-application
+
+--start mongodb
+docker run -d --name mongodb --net cms-application -p 27017:27017 mongo
+
+--start mongo-express (nodejs)
+docker run -d --link mongodb:mongo --net cms-application -p 8081:8081 mongo-express
+
+--maven-docker-plugin to create app image.
+mvn clean install dcoker:build
+docker images
+
+--push to dockerhub
+docker login -u vinhsu
+docker push vinhsu/cms:latest
+
+--run dockerized cms-application 
+docker run -d --name cms --link mongodb:mongodb --net cms-application -p 8080:8080 vinhsu/cms
+
+--test
+docker ps         						=> you will see two images, vinhsu/cms and mongo.
+http://localhost:8080/api/category      => you will see json result.
+http://localhost:8080/index.html#/categories => web page.
+
